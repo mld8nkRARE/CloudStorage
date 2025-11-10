@@ -15,7 +15,8 @@
   
 Бэкенд - ASP.NET Core Web API  
 Аутентификация - JWT  
-База данных - Entity Framework Core + SQLite Файловое хранилище - Локальная папка  
+База данных - Entity Framework Core + SQLite  
+Файловое хранилище - Локальная папка  
 Клиент - WPF  
 MVVM - CommunityToolkit.MVVM  
 Передача файлов - multipart/form-data(HTTP POST)  
