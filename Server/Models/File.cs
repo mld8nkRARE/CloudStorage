@@ -1,17 +1,39 @@
-﻿namespace Server.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Server.Models
 {
-    public class File
+    public class StoredFileInfo
     {
-        public string Id { get; set; }
-        public string FileName { get; set; } = string.Empty;
-        public string StoredFileName { get; set; } = string.Empty; // имя файла на сервере
-        public string ContentType { get; set; } = string.Empty; 
-        public long Size { get; set; } // в байтах
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required, StringLength(255)]
+        public string FileName { get; set; } = string.Empty;     // оригинальное имя (от пользователя)
+
+        [Required]
+        public string ContentType { get; set; } = string.Empty;  // image/jpeg, application/pdf и т.д.
+
+        [Required]
+        public long Size { get; set; }                           // размер в байтах
+
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+
         public DateTime LastUpdateAt { get; set; } = DateTime.UtcNow;
 
-        //внешний ключ
+        // Внешний ключ
+        [Required]
         public int UserId { get; set; }
-        public User User { get; set; } = null!; //навигационное свойство
+
+        // Навигационное свойство
+        [ForeignKey(nameof(UserId))]
+        public User User { get; set; } = null!;
+
+        // Удобный метод — возвращает имя файла на диске (Id + расширение)
+        public string GetPhysicalFileName()
+        {
+            var extension = Path.GetExtension(FileName);
+            return $"{Id}{extension}";
+        }
     }
 }
