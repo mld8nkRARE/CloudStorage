@@ -49,6 +49,9 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.10.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
@@ -92,6 +95,8 @@
     <Compile Include="Models\Auth\LoginRequest.cs" />
     <Compile Include="Models\Auth\LoginResponse.cs" />
     <Compile Include="Models\File\FileDto.cs" />
+    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\Interfaces\IAuthService.cs" />
     <Compile Include="Services\Interfaces\IFileService.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
