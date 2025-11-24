@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace Server.Controllers
@@ -36,6 +37,8 @@ namespace Server.Controllers
         }
 
         [HttpPost("register")]
+        [SwaggerResponse(200, "Регистрация успешна", typeof(object))]
+        [SwaggerResponse(409, "Пользователь уже существует")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             if (!ModelState.IsValid)
@@ -61,6 +64,8 @@ namespace Server.Controllers
         }
 
         [HttpPost("login")]
+        [SwaggerResponse(200, "Успешный вход", typeof(LoginResponse))]
+        [SwaggerResponse(401, "Неверный логин или пароль")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var user = await _context.Users
@@ -70,7 +75,11 @@ namespace Server.Controllers
                 return Unauthorized("Неверный email или пароль");
 
             var token = GenerateJwtToken(user);
-            return Ok(new { Token = token });
+            return Ok(new
+            {
+                token = token,
+                expires = DateTime.UtcNow.AddHours(3)
+            });
         }
 
         // Генерация JWT
@@ -94,6 +103,11 @@ namespace Server.Controllers
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public class LoginResponse
+        {
+            public string Token { get; set; } = string.Empty;
+            public DateTime Expires { get; set; }
         }
     }
 }

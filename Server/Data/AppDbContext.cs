@@ -21,8 +21,11 @@ namespace Server.Data
                 .IsUnique();
 
             // StoredFileInfo: первичный ключ по Guid
-            modelBuilder.Entity<StoredFileInfo>()
-                .HasKey(f => f.Id);
+            modelBuilder.Entity<StoredFileInfo>(entity =>
+            {
+                entity.Property(e => e.Id)
+                      .ValueGeneratedNever(); // ← ВАЖНО! Говорим EF: не трогай Id, он уже есть
+            });
 
             // Связь один-ко-многим: User → Files (каскадное удаление)
             modelBuilder.Entity<StoredFileInfo>()

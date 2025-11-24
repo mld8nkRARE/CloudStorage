@@ -20,7 +20,7 @@ namespace Server.Migrations
             modelBuilder.Entity("Server.Models.StoredFileInfo", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                        .ValueGeneratedNever()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ContentType")
