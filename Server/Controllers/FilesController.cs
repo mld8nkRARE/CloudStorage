@@ -35,7 +35,6 @@ namespace Server.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("Файл не выбран");
 
-            // ← ВОТ ЭТОТ БЛОК — тот самый "при загрузке"
             var fileInfo = new StoredFileInfo
             {
                 Id = Guid.NewGuid(),
@@ -48,14 +47,14 @@ namespace Server.Controllers
             };
 
             var extension = Path.GetExtension(file.FileName);
-            var physicalFileName = $"{fileInfo.Id:N}{extension}";          // например: 550e8400-....pdf
+            var physicalFileName = $"{fileInfo.Id}{extension}";          
             var fullPath = Path.Combine(_storagePath, physicalFileName);
 
              
             Directory.CreateDirectory(_storagePath);
             await using (var stream = new FileStream(fullPath, FileMode.Create))
                 await file.CopyToAsync(stream);
-            // ← конец блока
+           
 
             _context.Files.Add(fileInfo);
             await _context.SaveChangesAsync();

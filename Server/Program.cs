@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -65,6 +66,29 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    // Это покажет детализированную ошибку в браузере/ответе
+    app.UseDeveloperExceptionPage();
+}
+
+// ТЕПЕРЬ ДОБАВЬ ЛОГГЕР
+app.UseExceptionHandler(c => c.Run(async context =>
+{
+    var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+    if (exception != null)
+    {
+        Console.WriteLine($"Ошибка: {exception.Message}");
+        Console.WriteLine($"Stack Trace: {exception.StackTrace}");
+        if (exception.InnerException != null)
+        {
+            Console.WriteLine($"Inner Exception: {exception.InnerException.Message}");
+        }
+    }
+    await context.Response.WriteAsync("Ошибка сервера");
+    context.Response.StatusCode = 500;
+}));
 
 if (app.Environment.IsDevelopment())
 {
