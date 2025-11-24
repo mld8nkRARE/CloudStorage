@@ -89,6 +89,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Auth\LoginRequest.cs" />
+    <Compile Include="Models\Auth\LoginResponse.cs" />
+    <Compile Include="Models\File\FileDto.cs" />
+    <Compile Include="Services\Interfaces\IAuthService.cs" />
+    <Compile Include="Services\Interfaces\IFileService.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
@@ -133,8 +138,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
-    <Folder Include="Models\" />
-    <Folder Include="Services\" />
     <Folder Include="Views\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
