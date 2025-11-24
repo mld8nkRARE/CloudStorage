@@ -16,7 +16,9 @@ namespace Server.Controllers
         private readonly string _storagePath;
 
         public FilesController(AppDbContext context, IWebHostEnvironment env)
-        {
+        
+        
+      {
             _context = context;
             _storagePath = Path.Combine(env.ContentRootPath, "uploads");
             Directory.CreateDirectory(_storagePath); // создаём папку, если нет
@@ -24,8 +26,10 @@ namespace Server.Controllers
 
         private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+
         // 1. ЗАГРУЗКА ФАЙЛА 
         [HttpPost("upload")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -34,16 +38,21 @@ namespace Server.Controllers
             // ← ВОТ ЭТОТ БЛОК — тот самый "при загрузке"
             var fileInfo = new StoredFileInfo
             {
+                Id = Guid.NewGuid(),
                 FileName = file.FileName,
                 ContentType = file.ContentType,
                 Size = file.Length,
-                UserId = CurrentUserId
+                UserId = CurrentUserId,
+                UploadedAt = DateTime.UtcNow,
+                LastUpdateAt = DateTime.UtcNow
             };
 
             var extension = Path.GetExtension(file.FileName);
-            var physicalFileName = $"{fileInfo.Id}{extension}";           // например: 550e8400-....pdf
+            var physicalFileName = $"{fileInfo.Id:N}{extension}";          // например: 550e8400-....pdf
             var fullPath = Path.Combine(_storagePath, physicalFileName);
 
+             
+            Directory.CreateDirectory(_storagePath);
             await using (var stream = new FileStream(fullPath, FileMode.Create))
                 await file.CopyToAsync(stream);
             // ← конец блока

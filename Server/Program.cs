@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Server.Data;
@@ -69,11 +70,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
+//app.UseHttpsRedirection();
+
 
 app.UseAuthentication();   
 app.UseAuthorization();
