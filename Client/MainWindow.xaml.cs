@@ -8,11 +8,10 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainViewModel vm;
-        public MainWindow()
+        public MainWindow(MainViewModel vm)
         {
             InitializeComponent();
-            DataContext = vm = new MainViewModel();
+            DataContext = vm;
         }
     }
 }

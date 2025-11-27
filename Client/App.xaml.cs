@@ -1,18 +1,12 @@
-﻿using Client.Services;
-using Client.Services.Interfaces;
-using Client.ViewModels;
-using Client.ViewModels.Auth;
-using Client.Views.Auth;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-
+using Microsoft.Extensions.DependencyInjection;
+using Client.ViewModels;
 
 namespace Client
 {
@@ -31,7 +25,7 @@ namespace Client
 
             // Получаем MainWindow из DI
             var mainWindow = Services.GetRequiredService<MainWindow>();
-            //mainWindow.Show();
+            mainWindow.Show();
 
             base.OnStartup(e);
         }
@@ -40,19 +34,12 @@ namespace Client
         {
             // ViewModels
             services.AddSingleton<MainViewModel>();
-            services.AddSingleton<LoginViewModel>();
 
             // Views
             services.AddSingleton<MainWindow>();
-            services.AddSingleton<LoginView>();
 
             // Сервисы (если будут)
             // services.AddSingleton<IDataService, DataService>();
-            services.AddHttpClient<IAuthService, AuthService>(client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:7260");
-            });
-
         }
     }
 }
