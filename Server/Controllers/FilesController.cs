@@ -35,7 +35,7 @@ namespace Server.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("Файл не выбран");
 
-            var fileInfo = new StoredFileInfo
+            var fileInfo = new FileModel
             {
                 Id = Guid.NewGuid(),
                 FileName = file.FileName,

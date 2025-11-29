@@ -52,10 +52,8 @@ namespace Server.Controllers
             {
                 Nickname = dto.Nickname,
                 Email = dto.Email,
-                // ← ВОТ ЗДЕСЬ МЫ САМИ УСТАНАВЛИВАЕМ ХЕШ!
-                // Клиент не может подсунуть свой PasswordHash
             };
-            user.SetPasswordHash(BCrypt.Net.BCrypt.HashPassword(dto.Password));
+            user.SetPasswordHash(BCrypt.Net.BCrypt.HashPassword(dto.Password)); //устанавливаем хэш
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

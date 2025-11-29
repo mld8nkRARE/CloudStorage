@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Models
 {
-    public class StoredFileInfo
+    public class FileModel
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -12,7 +12,7 @@ namespace Server.Models
         public string FileName { get; set; } = string.Empty;     // оригинальное имя (от пользователя)
 
         [Required]
-        public string ContentType { get; set; } = string.Empty;  // image/jpeg, application/pdf и т.д.
+        public string ContentType { get; set; } = string.Empty;  
 
         [Required]
         public long Size { get; set; }                           // размер в байтах

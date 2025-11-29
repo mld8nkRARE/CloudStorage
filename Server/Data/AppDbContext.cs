@@ -7,7 +7,7 @@ namespace Server.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users => Set<User>();
-        public DbSet<StoredFileInfo> Files => Set<StoredFileInfo>();
+        public DbSet<FileModel> Files => Set<FileModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,21 +21,21 @@ namespace Server.Data
                 .IsUnique();
 
             // StoredFileInfo: первичный ключ по Guid
-            modelBuilder.Entity<StoredFileInfo>(entity =>
+            modelBuilder.Entity<FileModel>(entity =>
             {
                 entity.Property(e => e.Id)
                       .ValueGeneratedNever(); // ← ВАЖНО! Говорим EF: не трогай Id, он уже есть
             });
 
             // Связь один-ко-многим: User → Files (каскадное удаление)
-            modelBuilder.Entity<StoredFileInfo>()
+            modelBuilder.Entity<FileModel>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.Files)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Индекс по UserId для быстрых запросов списка файлов
-            modelBuilder.Entity<StoredFileInfo>()
+            modelBuilder.Entity<FileModel>()
                 .HasIndex(f => f.UserId);
         }
     }
