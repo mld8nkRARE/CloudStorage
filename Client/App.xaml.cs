@@ -3,73 +3,68 @@ using Client.Services.Interfaces;
 using Client.ViewModels;
 using Client.ViewModels.Auth;
 using Client.ViewModels.File;
+using Client.Views;
 using Client.Views.Auth;
-using Microsoft.Extensions.DependencyInjection;
+using Client.Views.File;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-
 
 namespace Client
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
         public static IServiceProvider Services { get; private set; }
 
-        protected override async void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
+            var services = new ServiceCollection();
+            ConfigureServices(services);
 
-            Services = serviceCollection.BuildServiceProvider();
+            Services = services.BuildServiceProvider();
 
-            // стартуем LoginView вместо MainWindow
-            var login = Services.GetRequiredService<LoginView>();
-            login.Show();
-
+            // стартуем MainWindow
             var mainWindow = Services.GetRequiredService<MainWindow>();
             var mainVm = Services.GetRequiredService<MainViewModel>();
 
-            await mainVm.InitializeAsync();
+            // текущий view — LoginViewModel
+            mainVm.CurrentView = Services.GetRequiredService<LoginViewModel>();
+            mainWindow.DataContext = mainVm;
 
             mainWindow.Show();
-
             base.OnStartup(e);
         }
 
+
         private void ConfigureServices(IServiceCollection services)
         {
+            // Services
+            services.AddSingleton<IAuthService, AuthService>();
+            services.AddSingleton<INavigationService, NavigationService>();
+            services.AddHttpClient();
+            services.AddHttpClient<IFileService, FileService>(c =>
+            {
+                c.BaseAddress = new Uri("https://localhost:7260");
+            });
+
+            // NavigationService
+            services.AddSingleton<INavigationService, NavigationService>();
+
             // ViewModels
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LoginViewModel>();
             services.AddSingleton<RegisterViewModel>();
             services.AddSingleton<FileListViewModel>();
+            services.AddSingleton<ProfileViewModel>();
             services.AddSingleton<FileItemViewModel>();
 
             // Views
+            services.AddSingleton<MainWindow>();
             services.AddSingleton<LoginView>();
             services.AddSingleton<RegisterView>();
-            services.AddSingleton<MainWindow>();
-
-            // Services
-            services.AddSingleton<IAuthService, AuthService>();
-
-            // HttpClient
-            services.AddHttpClient();
-
-            services.AddHttpClient<IFileService, FileService>(c =>
-            {
-                c.BaseAddress = new Uri("https://localhost:7260"); // ваш сервер
-            });
+            services.AddSingleton<ProfileView>();
+            services.AddSingleton<FileListView>();
         }
-
     }
 }
+

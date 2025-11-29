@@ -1,5 +1,6 @@
-﻿using Client.Services.Interfaces;
-using Client.Views.Auth;
+﻿using Client.Services;
+using Client.Services.Interfaces;
+using Client.ViewModels.File;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,32 +9,37 @@ using System.Windows;
 
 namespace Client.ViewModels.Auth
 {
-    public partial class LoginViewModel : ObservableObject
+    public class LoginViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly INavigationService _navigation;
 
-        [ObservableProperty]
-        private string email = "";
-
-        [ObservableProperty]
-        private string password = "";
-        public string Password
+        private string _email = "";
+        public string Email
         {
-            get => password;
-            set => SetProperty(ref password, value);
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        public LoginViewModel(IAuthService authService)
+        private string _password = "";
+        public string Password
+        {
+            get => _password;
+            set => SetProperty(ref _password, value);
+        }
+
+        public LoginViewModel(IAuthService authService, INavigationService navigation)
         {
             _authService = authService;
+            _navigation = navigation;
         }
 
         [RelayCommand]
-        private async Task Login()
+        public async Task Login()
         {
             var result = await _authService.LoginAsync(new Models.Auth.LoginRequest
             {
-                Email = email,
+                Email = Email,
                 Password = Password
             });
 
@@ -45,22 +51,18 @@ namespace Client.ViewModels.Auth
 
             MessageBox.Show("Успешный вход!");
 
-            // после успешного входа — открываем MainWindow
-            var main = App.Services.GetRequiredService<MainWindow>();
-            main.Show();
-
-            // закрываем окно авторизации
-            Application.Current.Windows[0]?.Close();
+            // Навигация на FileListView через NavigationService
+            var fileListVm = App.Services.GetRequiredService<FileListViewModel>();
+            _navigation.NavigateTo(fileListVm);
         }
 
         [RelayCommand]
-        private void OpenRegister()
+        public void OpenRegister()
         {
-            var reg = App.Services.GetRequiredService<RegisterView>();
-            reg.Show();
-
-            Application.Current.Windows[0]?.Close();
+            var registerVm = App.Services.GetRequiredService<RegisterViewModel>();
+            _navigation.NavigateTo(registerVm);
         }
-
     }
 }
+
+

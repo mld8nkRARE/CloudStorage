@@ -1,22 +1,22 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using Client.ViewModels.Auth;
+﻿using System.Windows.Controls;
 
 namespace Client.Views.Auth
 {
-    public partial class RegisterView : Window
+    public partial class RegisterView : UserControl
     {
-        public RegisterView(RegisterViewModel vm)
+        public RegisterView()
         {
             InitializeComponent();
-            DataContext = vm;
         }
 
-        private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+        private void PasswordBox_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (DataContext is RegisterViewModel vm)
+            if (DataContext is Client.ViewModels.Auth.RegisterViewModel vm)
+            {
                 vm.Password = ((PasswordBox)sender).Password;
+            }
         }
     }
 }
+
 

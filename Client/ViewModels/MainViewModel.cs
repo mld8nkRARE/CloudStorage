@@ -1,61 +1,75 @@
-﻿using Client.Services.Interfaces;
+﻿using Client.Services;
+using Client.Services.Interfaces;
+using Client.ViewModels.Auth;
 using Client.ViewModels.File;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace Client.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public class MainViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
 
-        [ObservableProperty]
-        private string title = "Добро пожаловать!";
+        public INavigationService Navigation { get; }
 
-        public MainViewModel(IAuthService authService)
+        private string _title = "Облачноe хранилище";
+        public string Title
         {
-            _authService = authService;
-
-            // пример: если токен есть, можно загрузить данные
-            if (!string.IsNullOrEmpty(_authService.AccessToken))
-            {
-                title = "Вы успешно вошли!";
-            }
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
 
-        [RelayCommand]
-        private void Logout()
+        private object _currentView;
+        public object CurrentView
+        {
+            get => _currentView;
+            set => SetProperty(ref _currentView, value);
+        }
+
+        // Можно хранить ссылки на VM для удобства
+        public FileListViewModel FileListVm { get; }
+        public LoginViewModel LoginVm { get; }
+        public RegisterViewModel RegisterVm { get; }
+
+        public MainViewModel(IAuthService authService,
+                             LoginViewModel loginVm,
+                             RegisterViewModel registerVm,
+                             FileListViewModel fileListVm,
+                             INavigationService navigation)
+        {
+            _authService = authService;
+            LoginVm = loginVm;
+            RegisterVm = registerVm;
+            FileListVm = fileListVm;
+
+            Navigation = navigation;
+
+            // стартовый экран — логин
+            CurrentView = LoginVm;
+        }
+
+        public void Logout()
         {
             _authService.ClearToken();
             MessageBox.Show("Вы вышли из аккаунта");
 
-            // после выхода вернуть пользователя на LoginView
-            var loginWindow = new Client.Views.Auth.LoginView(
-                App.Services.GetRequiredService<Client.ViewModels.Auth.LoginViewModel>()
-            );
-
-            loginWindow.Show();
-
-            // закрыть текущее окно
-            System.Windows.Application.Current.Windows[0]?.Close();
-        }
-
-        public FileListViewModel FileListVm { get; }
-
-        public MainViewModel(FileListViewModel fileListVm)
-        {
-            FileListVm = fileListVm;
-            title = "Облачноe хранилище";
+            // возвращаем на LoginView
+            CurrentView = LoginVm;
         }
 
         public async Task InitializeAsync()
         {
-            await FileListVm.LoadFilesAsync();
+            if (FileListVm != null)
+                await FileListVm.LoadFilesAsync();
         }
     }
 }
+
+
+
+
 
 

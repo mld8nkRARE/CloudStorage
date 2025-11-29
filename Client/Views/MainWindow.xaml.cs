@@ -1,5 +1,6 @@
-﻿using System.Windows;
-using Client.ViewModels;
+﻿using Client.ViewModels;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Windows;
 
 namespace Client
 {
@@ -15,12 +16,25 @@ namespace Client
     //        DataContext = vm = new MainViewModel();
     //    }
     //}
-    public partial class MainWindow : Window
+    //public partial class MainWindow : Window
+    //{
+    //    public MainWindow(MainViewModel vm)
+    //    {
+    //        InitializeComponent();
+    //        DataContext = vm;
+    //    }
+    //}
+    public class MainViewModel : ObservableObject
     {
-        public MainWindow(MainViewModel vm)
+        private object _currentView;
+        public object CurrentView
         {
-            InitializeComponent();
-            DataContext = vm;
+            get => _currentView;
+            set => SetProperty(ref _currentView, value);
+        }
+
+        public MainViewModel()
+        {
         }
     }
 }

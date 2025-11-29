@@ -1,7 +1,9 @@
 ﻿using Client.Models.File;
+using Client.Services;
 using Client.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -12,14 +14,14 @@ namespace Client.ViewModels.File
     public partial class FileListViewModel : ObservableObject
     {
         private readonly IFileService _fileService;
-        private readonly IServiceProvider _sp;
+        private readonly INavigationService _navigation;
 
         public ObservableCollection<FileItemViewModel> Files { get; } = new ObservableCollection<FileItemViewModel>();
 
-        public FileListViewModel(IFileService fileService, IServiceProvider sp)
+        public FileListViewModel(IFileService fileService, INavigationService navigation)
         {
             _fileService = fileService;
-            _sp = sp;
+            _navigation = navigation;
         }
 
         [RelayCommand]
@@ -29,7 +31,6 @@ namespace Client.ViewModels.File
             Files.Clear();
             foreach (var f in list)
             {
-                // создаём FileItemViewModel через DI-резолвер, чтобы он мог получить IFileService
                 Files.Add(new FileItemViewModel(f, _fileService));
             }
         }
@@ -48,7 +49,22 @@ namespace Client.ViewModels.File
                 await LoadFilesAsync();
             }
         }
+
+        [RelayCommand]
+        private void Logout()
+        {
+            var loginVm = App.Services.GetRequiredService<Client.ViewModels.Auth.LoginViewModel>();
+            _navigation.NavigateTo(loginVm);
+        }
+
+        [RelayCommand]
+        private void OpenProfile()
+        {
+            var profileVm = App.Services.GetRequiredService<ProfileViewModel>();
+            _navigation.NavigateTo(profileVm);
+        }
     }
 }
+
 
 

@@ -1,39 +1,51 @@
-﻿using Client.Services.Interfaces;
+﻿using Client.Services;
+using Client.Services.Interfaces;
+using Client.ViewModels.File;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace Client.ViewModels.Auth
 {
-    public partial class RegisterViewModel : ObservableObject
+    public class RegisterViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly INavigationService _navigation;
 
-        [ObservableProperty]
-        private string email = "";
-
-        [ObservableProperty]
-        private string nickname = "";
-
-        [ObservableProperty]
-        private string password = "";
-        public string Password
+        private string _email = "";
+        public string Email
         {
-            get => password;
-            set => SetProperty(ref password, value);
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        public RegisterViewModel(IAuthService authService)
+        private string _nickname = "";
+        public string Nickname
+        {
+            get => _nickname;
+            set => SetProperty(ref _nickname, value);
+        }
+
+        private string _password = "";
+        public string Password
+        {
+            get => _password;
+            set => SetProperty(ref _password, value);
+        }
+
+        public RegisterViewModel(IAuthService authService, INavigationService navigation)
         {
             _authService = authService;
+            _navigation = navigation;
         }
 
         [RelayCommand]
-        private async Task Register()
+        public async Task Register()
         {
             var result = await _authService.RegisterAsync(
-                nickname, email, password
+                Nickname, Email, Password
             );
 
             if (!result)
@@ -43,8 +55,20 @@ namespace Client.ViewModels.Auth
             }
 
             MessageBox.Show("Успешная регистрация!");
+
+            // После регистрации — переход на FileListView
+            var fileListVm = App.Services.GetRequiredService<FileListViewModel>();
+            _navigation.NavigateTo(fileListVm);
+        }
+
+        [RelayCommand]
+        public void BackToLogin()
+        {
+            var loginVm = App.Services.GetRequiredService<LoginViewModel>();
+            _navigation.NavigateTo(loginVm);
         }
     }
 }
+
 
 
