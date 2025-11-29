@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="Client.Views.File.FileListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Client.ViewModels.File">
+    <Grid>
+        <StackPanel>
+            <Button Content="Загрузить файл" Command="{Binding UploadCommand}" Width="150" Margin="0,0,0,10"/>
+            <ListView ItemsSource="{Binding Files}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="4">
+                            <TextBlock Text="{Binding FileName}" DockPanel.Dock="Left" Width="250"/>
+                            <TextBlock Text="{Binding Size}" DockPanel.Dock="Left" Width="80"/>
+                            <Button Content="Скачать" Command="{Binding DownloadCommand}" Width="80" Margin="8,0"/>
+                            <Button Content="Удалить" Command="{Binding DeleteCommand}" Width="80"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</UserControl>

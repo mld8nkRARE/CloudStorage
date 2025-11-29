@@ -1,24 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Client.Services.Interfaces;
+using Client.ViewModels.File;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Client.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public partial class MainViewModel : ObservableObject
     {
-        private string _title = "Hello, WPF + MVVM + DI!";
+        private readonly IAuthService _authService;
 
-        public string Title
+        [ObservableProperty]
+        private string title = "Добро пожаловать!";
+
+        public MainViewModel(IAuthService authService)
         {
-            get => _title;
-            set => SetProperty(ref _title, value);
+            _authService = authService;
+
+            // пример: если токен есть, можно загрузить данные
+            if (!string.IsNullOrEmpty(_authService.AccessToken))
+            {
+                title = "Вы успешно вошли!";
+            }
         }
 
-        public MainViewModel()
+        [RelayCommand]
+        private void Logout()
         {
-            // Инициализация данных или команд
+            _authService.ClearToken();
+            MessageBox.Show("Вы вышли из аккаунта");
+
+            // после выхода вернуть пользователя на LoginView
+            var loginWindow = new Client.Views.Auth.LoginView(
+                App.Services.GetRequiredService<Client.ViewModels.Auth.LoginViewModel>()
+            );
+
+            loginWindow.Show();
+
+            // закрыть текущее окно
+            System.Windows.Application.Current.Windows[0]?.Close();
+        }
+
+        public FileListViewModel FileListVm { get; }
+
+        public MainViewModel(FileListViewModel fileListVm)
+        {
+            FileListVm = fileListVm;
+            title = "Облачноe хранилище";
+        }
+
+        public async Task InitializeAsync()
+        {
+            await FileListVm.LoadFilesAsync();
         }
     }
 }
+
+

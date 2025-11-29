@@ -27,9 +27,13 @@
 
         <Button Grid.Row="4"
                 Content="Войти"
-                Width="100"
+                Width="360"
                 HorizontalAlignment="Center"
                 Padding="5"
-                Command="{Binding LoginCommand}"/>
+                Command="{Binding LoginCommand}" Margin="0,15,0,86"/>
+        <Button Content="Регистрация"
+                Margin="0,76,0,26"
+                Command="{Binding OpenRegisterCommand}" Grid.Row="4"/>
+
     </Grid>
 </Window>

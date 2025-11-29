@@ -1,4 +1,5 @@
 ﻿using Client.Services.Interfaces;
+using Client.Views.Auth;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,5 +52,15 @@ namespace Client.ViewModels.Auth
             // закрываем окно авторизации
             Application.Current.Windows[0]?.Close();
         }
+
+        [RelayCommand]
+        private void OpenRegister()
+        {
+            var reg = App.Services.GetRequiredService<RegisterView>();
+            reg.Show();
+
+            Application.Current.Windows[0]?.Close();
+        }
+
     }
 }

@@ -1,14 +1,32 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Client.ViewModels
 {
-    public class BaseViewModel : ObservableObject
+    public class BaseViewModel : INotifyPropertyChanged
     {
-        // Общие свойства и методы для всех ViewModel
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string name = null)
+        {
+            if (Equals(storage, value))
+                return false;
+
+            storage = value;
+            OnPropertyChanged(name);
+            return true;
+        }
     }
 }
+
