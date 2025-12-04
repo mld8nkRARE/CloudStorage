@@ -29,6 +29,13 @@ namespace Server.Models
         [ForeignKey(nameof(UserId))]
         public User User { get; set; } = null!;
 
+        // Внешний ключ: в какой папке находится файл (null = корень)
+        public Guid? FolderId { get; set; }
+
+        // Навигационное свойство: папка
+        [ForeignKey(nameof(FolderId))]
+        public Folder? Folder { get; set; }
+
         // Удобный метод — возвращает имя файла на диске (Id + расширение)
         public string GetPhysicalFileName()
         {

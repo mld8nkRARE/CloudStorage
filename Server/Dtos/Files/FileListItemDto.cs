@@ -7,5 +7,6 @@
         public string ContentType { get; set; } = string.Empty;
         public long Size { get; set; }
         public DateTime UploadedAt { get; set; }
+        public DateTime LastUpdateAt { get; set; }
     }
 }

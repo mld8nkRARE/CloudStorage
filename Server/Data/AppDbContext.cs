@@ -8,6 +8,7 @@ namespace Server.Data
 
         public DbSet<User> Users => Set<User>();
         public DbSet<FileModel> Files => Set<FileModel>();
+        public DbSet<Folder> Folders => Set<Folder>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,11 +22,9 @@ namespace Server.Data
                 .IsUnique();
 
             // StoredFileInfo: первичный ключ по Guid
-            modelBuilder.Entity<FileModel>(entity =>
-            {
-                entity.Property(e => e.Id)
-                      .ValueGeneratedNever(); // ← ВАЖНО! Говорим EF: не трогай Id, он уже есть
-            });
+            modelBuilder.Entity<FileModel>()
+            .HasIndex(f => f.Id)
+            .IsUnique();
 
             // Связь один-ко-многим: User → Files (каскадное удаление)
             modelBuilder.Entity<FileModel>()
@@ -37,6 +36,36 @@ namespace Server.Data
             // Индекс по UserId для быстрых запросов списка файлов
             modelBuilder.Entity<FileModel>()
                 .HasIndex(f => f.UserId);
+            modelBuilder.Entity<Folder>()
+            .HasIndex(f => f.Id)
+            .IsUnique();
+
+            // Связь Folder ↔ SubFolders (рекурсивная)
+            modelBuilder.Entity<Folder>()
+                .HasMany(f => f.SubFolders)
+                .WithOne(f => f.ParentFolder)
+                .HasForeignKey(f => f.ParentFolderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Связь Folder ↔ Files
+            modelBuilder.Entity<FileModel>()
+                .HasOne(f => f.Folder)
+                .WithMany(f => f.Files)
+                .HasForeignKey(f => f.FolderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Обновим внешние ключи для User
+            modelBuilder.Entity<FileModel>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Files)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Folder>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Folders)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
