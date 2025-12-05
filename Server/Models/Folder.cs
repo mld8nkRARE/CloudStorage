@@ -15,7 +15,7 @@ namespace Server.Models
 
         // Внешний ключ: кто владелец папки
         [Required]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         // Навигационное свойство: владелец
         [ForeignKey(nameof(UserId))]

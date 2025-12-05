@@ -1,8 +1,8 @@
 ﻿namespace Server.Dtos.Files
 {
-    public class FileInfoDto
+    public class FileDownloadDto
     {
-        public string FilePath { get; set; } = string.Empty;
+        public Stream FileStream { get; set; } = default!;
         public string FileName { get; set; } = string.Empty;
         public string ContentType { get; set; } = string.Empty;
     }

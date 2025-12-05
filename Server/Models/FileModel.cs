@@ -23,7 +23,7 @@ namespace Server.Models
 
         // Внешний ключ
         [Required]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         // Навигационное свойство
         [ForeignKey(nameof(UserId))]

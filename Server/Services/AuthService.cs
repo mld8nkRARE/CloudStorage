@@ -10,67 +10,78 @@ namespace Server.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _db;
         private readonly IConfiguration _config;
 
-        public AuthService(AppDbContext context, IConfiguration config)
+        public AuthService(AppDbContext db, IConfiguration config)
         {
-            _context = context;
+            _db = db;
             _config = config;
         }
 
-        public async Task<User> RegisterAsync(string nickname, string email, string password)
+        public async Task<(bool Success, string? ErrorMessage, Guid? UserId)> RegisterAsync(RegisterRequestDto dto)
         {
-            // Проверим, что пользователь с таким email или nickname не существует
-            if (await _context.Users.AnyAsync(u => u.Email == email || u.Nickname == nickname))
-                throw new ArgumentException("Пользователь с таким email или никнеймом уже существует");
+            // Проверки
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+                return (false, "Email or password is empty", null);
+
+            var existing = await _db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email || u.Nickname == dto.Nickname);
+            if (existing != null)
+                return (false, "User with same email or nickname already exists", null);
 
             var user = new User
             {
-                Nickname = nickname,
-                Email = email
+                Email = dto.Email,
+                Nickname = dto.Nickname
             };
-            user.SetPasswordHash(BCrypt.Net.BCrypt.HashPassword(password));
+            user.SetPasswordHash(BCrypt.Net.BCrypt.HashPassword(dto.Password));
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
 
-            return user;
+            return (true, null, user.Id);
         }
 
-        public async Task<AuthResultDto> LoginAsync(string email, string password)
+        public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto dto)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Неверный email или пароль");
 
-            var token = GenerateJwtToken(user);
-            return new AuthResultDto
+            var token = GenerateJwtToken(user, out DateTime expiresAt);
+            return new AuthResponseDto
             {
                 Token = token,
-                Expires = DateTime.UtcNow.AddHours(3) // 3 часа
+                Expires = expiresAt
             };
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(User user, out DateTime expiresAt)
         {
             var claims = new[]
             {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Nickname)
-        };
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(ClaimTypes.Name, user.Nickname ?? string.Empty)
+            };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var keyString = _config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var expireHours = 3;
+            if (int.TryParse(_config["Jwt:ExpiresHours"], out var h))
+                expireHours = h;
+
+            expiresAt = DateTime.UtcNow.AddHours(expireHours);
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: expiresAt,
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
